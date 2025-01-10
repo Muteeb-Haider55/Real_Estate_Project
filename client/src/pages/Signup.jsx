@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
+import { set } from "mongoose";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function SignUp() {
   const [formData, setFormData] = useState({
@@ -8,7 +9,9 @@ export default function SignUp() {
     email: "",
     password: "",
   });
-
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -18,6 +21,7 @@ export default function SignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const res = await fetch("http://localhost:3000/api/auth/signup", {
         method: "POST",
@@ -27,13 +31,17 @@ export default function SignUp() {
         body: JSON.stringify(formData),
       });
 
-      if (!res.ok) {
-        throw new Error(`Failed to sign up: ${res.status} ${res.statusText}`);
-      }
-
       const data = await res.json();
-      console.log("Success:", data);
+      if (data.success === false) {
+        setError(data.message);
+        setLoading(false);
+        return;
+      }
+      setLoading(false);
+      setError(null);
+      navigate("/sign-in");
     } catch (error) {
+      setLoading(false);
       console.error("Error:", error.message);
     }
   };
@@ -67,10 +75,11 @@ export default function SignUp() {
           value={formData.password}
         />
         <button
+          disabled={loading}
           type="submit"
           className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80"
         >
-          Sign up
+          {loading ? "Loading..." : "Sign Up"}
         </button>
       </form>
       <div className="flex gap-2 mt-5">
@@ -79,6 +88,7 @@ export default function SignUp() {
           <span className="text-blue-700">Sign in</span>
         </Link>
       </div>
+      {error && <p className="text-red-500 mt-5">{error}</p>}
     </div>
   );
 }
