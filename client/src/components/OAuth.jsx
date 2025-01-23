@@ -28,7 +28,7 @@ export default function OAuth() {
       });
       const data = res.json();
       dispatch(signInSuccess(data));
-      navigate("/home");
+      navigate("/");
     } catch (error) {
       console.log("could not assign with google", error);
     }
