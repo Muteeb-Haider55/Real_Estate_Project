@@ -43,8 +43,10 @@ export default function SignIn() {
         dispatch(signInFailure(data.message));
         return;
       }
+      console.log(data);
+
       dispatch(signInSuccess(data));
-      navigate("/home");
+      navigate("/profile");
     } catch (error) {
       dispatch(signInFailure(error.message));
     }
